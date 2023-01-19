@@ -33,15 +33,23 @@ knitr::opts_chunk$set(echo = TRUE,tidy=TRUE,message=FALSE,warning=FALSE,strip.wh
 ## Problem 1 
 
 a) Describe a real-life application in which *classification* might be useful. Identify the response and the predictors. Is the goal inference or prediction?
+- Recognition of handwritten digits. That'd be prediction
+
 b) Describe a real-life application in which *regression* might be useful. Identify the response and the predictors. Is the goal inference or prediction?
+- With regression we're interested in developing a statistical model relating different random variables, say the number of cups of coffee each day to hours of sleep each day. With such a regression model we could say something about the relationship, which would be inference. 
 
 ## Problem 2
 
 Take a look at Figure 2.9 in the course book (p.31). 
 
 a) Discuss whether a flexible or rigid method typically will have the highest test error.
+- If the model is not too rigid, another flexible model will usually yield higher test error as the data can be overfitted more easily by flexible models. 
+
 b) Does a small variance imply that the data has been under- or overfit?
+- Small model variance implies (to a degree) underfitting, as high model variance corresponds to overfitting the data.
+
 c) Relate the problem of over- and underfitting to the bias-variance trade-off.
+- When overfitting we're introducing high variance to our model since a new training dataset will change the model considerably. When underfitting data we're introducing high bias to our model since we're getting errors due to the model being too simple. Variance is related to the flexibility of the model and bias is related to the rigidity of the model. The MSE varies with the variance and squared bias of the model, so decreasing both is the goal to minimize MSE. Initially, the bias decreases at a higher rate than the variance increases so the MSE decreases. At some point, the variance grows faster than the bias decreases. Thus there is a point inbetween where we find a minimum MSE wrt. both variance and bias. This is the bias-variance tradeoff.
 
 
 ## Problem 3 -- Exercise 2.4.9 from ISL textbook (modified)
@@ -54,26 +62,82 @@ data(Auto)
 PS: if the `ISLR` package is not installed (`library` function gives error) you can install it by running `install.packages("ISLR")` before you load the package the first time. 
 
 a) View the data. What are the dimensions of the data? Which predictors are quantitative and which are qualitative?
+- Auto has 392 different observations of 9 features. mpg, displacement, horsepower, weight and acceleration are quantitative. cylinders, year, origin and name are qualitative.
 
 b) What is the range (min, max) of each quantitative predictor? Hint: use the `range()` function. For more advanced users, check out `sapply()`.
 
+```{r}
+quantitative = data.frame(Auto$mpg, 
+                   Auto$displacement, 
+                   Auto$horsepower, 
+                   Auto$weight, 
+                   Auto$acceleration,
+                   Auto$year)
+
+ranges = sapply(quantitative, range, simplify = TRUE)
+```
+
+
 c) What is the mean and standard deviation of each quantitative predictor?
+```{r}
+means = sapply(quantitative, mean, simplify = TRUE)
+std_dev = sapply(quantitative, sd, simplify = TRUE)
+
+```
 
 d) Now, make a new dataset called `ReducedAuto` where you remove the 10th through 85th observations. What is the range, mean and standard deviation of the quantitative predictors in this reduced set?
+```{r}
+exclusion_indeces = c(10:85)
+reduced_auto = Auto[-exclusion_indeces,]
+
+reduced_auto_quant = data.frame(reduced_auto$mpg, 
+                                reduced_auto$displacement, 
+                                reduced_auto$horsepower, 
+                                reduced_auto$weight, 
+                                reduced_auto$acceleration,
+                                reduced_auto$year)
+
+reduced_ranges = sapply(reduced_auto_quant, range, simplify = TRUE)
+reduced_means = sapply(reduced_auto_quant, mean, simplify = TRUE)
+reduced_std_dev = sapply(reduced_auto_quant, sd, simplify = TRUE)
+
+```
 
 e) Using the full dataset, investigate the quantitative predictors graphically using a scatterplot. Do you see any strong relationships between the predictors? Hint: try out the `ggpairs()` function from the `GGally` package. 
+```{r, echo=FALSE}
+library(GGally)
+ggpairs(quantitative)
+```
+
+- Both HP and Weight increases with displacement, and horsepower increases with weight. Displacement, horsepower and weight seems to decrease with increasing mpg.
 
 f) Suppose we wish to predict gas milage (`mpg`) on the basis of the other variables (both quantitative and qualitative). Make some plots showing the relationships between `mpg` and the qualitative predictors (hint: `geom_boxplot()`). Which predictors would you consider helpful when predicting `mpg`?
+
+```{r, echo=FALSE}
+ggplot(data = Auto,  aes(as.factor(cylinders), mpg)) +
+  geom_boxplot(fill="skyblue") + 
+  labs(title = "mpg vs cylinders")
+
+ggplot(data = Auto,  aes(as.factor(origin), mpg)) +
+  geom_boxplot(fill="skyblue") + 
+  labs(title = "mpg vs origin") 
+```
+
+- From the boxplots of the qualitative predictors we see a correlation between both cylinders and origin. Also from the previous scatterplots we also see correlation of mpg with displacement, horsepower and weight.
 
 g) The correlation of two variables $X$ and $Y$ are defined as
 $$ \text{cor}(X,Y) = \frac{\text{cov}(X,Y)}{\sigma_X\sigma_Y}.$$
 Both the correlation matrix and covariance matrix are easily assessed in R with the `cor()` and `cov()` functions. Use only the covariance matrix to find the correlation between `mpg` and `displacement`, `mpg` and `horsepower`, and `mpg` and `weight`. Do your results coincide with the correlation matrix you find using `cor(Auto[,quant])`? 
+
 ```{r}
 quant = c(1,3,4,5,6,7)
 covMat = cov(Auto[,quant])
+sd_products = as.numeric(std_dev) %*% t(as.numeric(std_dev)) 
+corMat = covMat / sd_products
+corMat2 = cor(Auto[,quant])
 ```
 
-
+- The results coincide
 
 
 ## Problem 4 -- Multivariate normal distribution
@@ -115,9 +179,41 @@ a) Use the `mvrnorm()` function from the `MASS` library to simulate 1000 values 
 -2 & 5
 \end{pmatrix}.$$ 
 
+```{r}
+library(MASS)
+n = 1000
+variables = c("x1","x2")
+mu = c(2,3)
+
+sigma1 = matrix(c(1,0,0,1),nrow=2,ncol=2)
+sigma2 = matrix(c(1,0,0,5),nrow=2,ncol=2)
+sigma3 = matrix(c(1,2,2,5),nrow=2,ncol=2)
+sigma4 = matrix(c(1,-2,-2,5),nrow=2,ncol=2)
+
+set1 = as.data.frame(mvrnorm(n,mu,sigma1))
+colnames(set1) = variables
+set2 = as.data.frame(mvrnorm(n,mu,sigma2))
+colnames(set2) = variables
+set3 = as.data.frame(mvrnorm(n,mu,sigma3))
+colnames(set3) = variables
+set4 = as.data.frame(mvrnorm(n,mu,sigma4))
+colnames(set4) = variables
+
+```
+
+
+
 b) Make a scatterplot of the four sets of simulated datasets. Can you see which plot belongs to which distribution?
 
+```{r, echo = FALSE}
+library(patchwork)
 
+p1 = ggplot(set1, aes(x1,x2)) + geom_point() + labs(title = "set1") + xlim(-5,10) + ylim(-5,10)
+p2 = ggplot(set2, aes(x1,x2)) + geom_point() + labs(title = "set2") + xlim(-5,10) + ylim(-5,10)
+p3 = ggplot(set3, aes(x1,x2)) + geom_point() + labs(title = "set3") + xlim(-5,10) + ylim(-5,10)
+p4 = ggplot(set4, aes(x1,x2)) + geom_point() + labs(title = "set4") + xlim(-5,10) + ylim(-5,10)
+(p1 + p2) / (p3 + p4)
+```
 
 ## Problem 5 -- Theory and practice: training and test MSE; bias-variance
 
@@ -149,17 +245,27 @@ x <- seq(from = -2, to = 4, by = 0.1)
 truefunc <- function(x) {
   return(x ^ 2)
 }
+# vector with values of f(x)=x^2
 true_y <- truefunc(x)
+
+# Produce x amount of samples from N(0,2^2) distribution M times, ends up as a x*M x 1 vector, reshape
+# into matrix with M rows so we get x random numbers for M simulations, each row is a simulation
 error <- matrix(rnorm(length(x) * M, mean = 0, sd = 2),
                 nrow = M,
                 byrow = TRUE)
+
+# Produce matrix M with M rows and length(x) columns, where each row is its own simulation
+# of f(x) = x^2 + error. replicate true_y M times, insert as rows, add error element-wise
 ymat <- matrix(rep(true_y, M), byrow = T, nrow = M) + error  # Each row is a simulation
 
 #------
-
+# Create list of empty matrices with same dimensions as ymat
 predictions_list <- lapply(1:nord, matrix, data = NA, nrow = M, ncol = ncol(ymat))
 for(i in 1:nord){
+  # Iterate through each matrix in the list
   for(j in 1:M){
+    # iterate through each row of current matrix, fit polynomial of degree i to simulated data (ymat[j,])
+    # and make a prediction for the values in x for each model, put it in the list of predictions
     predictions_list[[i]][j, ] <- predict(lm(ymat[j,] ~ poly(x, i, raw = TRUE)))
   }
 }
@@ -169,6 +275,9 @@ for(i in 1:nord){
 library(tidyverse) # The tidyverse contains ggplot2, as well as tidyr and dplyr, 
 # which we can use for dataframe manipulation.
 
+# Apply new function to 1:nord (polynomial degree), bind each matrix with new columns 
+# indicating simulation number and polynomial degree (simulation number is new for each row, 
+# polynomial degree is the same for each row but different for each matrix)
 list_of_matrices_with_deg_id <- 
   lapply(1:nord, 
          function(poly_degree){cbind(predictions_list[[poly_degree]], 
@@ -178,7 +287,8 @@ list_of_matrices_with_deg_id <-
 # with 100 rows, where each row is the predicted polynomial of that degree.
 # We also have a column for the simulation number, and a column for polynomial degree.
 
-# Extract each matrix and bind them to one large matrix
+# Extract each matrix and bind them to one large matrix by row so sim-number and polynomial
+# degree columns align downwards, new polynomial order simulation for each 100 rows
 stacked_matrices <-  NULL
 for (i in 1:nord) {
   stacked_matrices <-
@@ -187,13 +297,19 @@ for (i in 1:nord) {
 stacked_matrices_df <- as.data.frame(stacked_matrices)
 
 # Convert from wide to long (because that is the best format for ggplot2)
+# Act on columns of stacked_matrices_df that are NOT simulation_num and poly_degree
+# Reshape stacked matrix into a long long long list of values which have a simulation number
+# and polynomial degree as well as a name indicating which x value it corresponds to,
+# call this new long column "y"
 long_predictions_df <- pivot_longer(stacked_matrices_df, 
                                     !c(simulation_num, poly_degree), 
                                     values_to = "y")
 
 # Now we can use ggplot2!
 # We just want to plot for degrees 1, 2, 10 and 20.
-
+# %>% passes the LHS to the first argument of the RHS, we're able to cbind the length-61 column vector x to
+# the length-122000 columns of long_predictions_df since R wraps stuff to the end... x = x gives the column
+# the name x. We only want the rows containing poly_degree 1,2,10, or 20, filter() does this for us
 plotting_df <- cbind(long_predictions_df, x = x) %>% # adding the x-vector to the dataframe 
   filter(poly_degree %in% c(1, 2, 10, 20)) # Select only the predictions using degree 1, 2, 10 or 20
 
@@ -201,12 +317,12 @@ ggplot(plotting_df, aes(x = x, y = y, group = simulation_num)) +
   geom_line(aes(color = simulation_num)) +
   geom_line(aes(x = x, y = x^2), size = 1.5) +
   facet_wrap(~ poly_degree) +
-  theme_bw() +
+  #theme_bw() +
   theme(legend.position = "none")
 ```
 
 What do you observe in the produced plot? Which polynomial fits the best to the true curve?
-
+- For degree 10 and 20 we see increasing variance in the model as its overfitting the data. For degree 1 we see that the model is too simple so the data is coarsely underfitted. The degree 2 model seems to fit the data best.
 ---
 
 ### b) Train and test MSE
@@ -230,17 +346,21 @@ testerror <- matrix(rnorm(length(x)*M, mean = 0, sd = 2), nrow = M, byrow = TRUE
 ymat <- matrix(rep(true_y, M), byrow = T, nrow = M) + error
 testymat <- matrix(rep(true_y, M), byrow=T, nrow=M) + testerror
 
+# Model is fitted to ymat (training data)
 predictions_list <- lapply(1:nord, matrix, data = NA, nrow = M, ncol = ncol(ymat))
 for(i in 1:nord){
   for(j in 1:M){
+    # Train model, make prediction
     predictions_list[[i]][j, ] <- predict(lm(ymat[j,] ~ poly(x, i, raw = TRUE)))
   }
 }
 
+# Calculate MSE for training data
 trainMSE <- lapply(1:nord, 
                    function(poly_degree){
                      rowMeans((predictions_list[[poly_degree]] - ymat)^2)}
                    )
+# Calculate MSE for test data
 testMSE <- lapply(1:nord, 
                   function(poly_degree){
                     rowMeans((predictions_list[[poly_degree]] - testymat)^2)}
@@ -320,8 +440,11 @@ p.all_lines / (p.bars + p.means)
 ```
 
 - Which value of the polynomial gives the smallest mean testMSE? 
+  - 2
 - Which gives the smallest mean trainMSE? 
+  - 20
 - Which would you use to predict a new value of $y$?
+  - 2
 
 ### c) Bias and variance - we use the truth!
 
@@ -378,9 +501,12 @@ ggplot(df_select_x, aes(x = poly_degree, y = value, group = type)) +
 ```
 
 Study the final plot you produced: when the flexibility increases (poly increase), what happens with
-    i) the squared bias,
-    ii) the variance, 
+    i) the squared bias
+    - The squared bias drops off as flexibility increases
+    ii) the variance
+    - The variance increases with increasing flexibility
     iii) the irreducible error?  
+    - The irreducible error stays at a constant value of 4
     
 ---
 
