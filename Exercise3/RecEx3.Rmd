@@ -5,15 +5,15 @@ author:
 - Department of Mathematical Sciences, NTNU
 date: "January 24, 2022"
 output:
+  html_document:
+    toc: no
+    toc_depth: '2'
+    df_print: paged
   pdf_document:
     fig_caption: yes
     keep_tex: yes
     toc: no
     toc_depth: 2
-  html_document:
-    toc: no
-    toc_depth: '2'
-    df_print: paged
 subtitle: TMA4268 Statistical Learning V2022
 urlcolor: blue
 ---
@@ -57,17 +57,47 @@ Auto$origin = factor(Auto$origin)
 ## a)
 Use the function `ggpairs()` from `GGally` package to produce a scatterplot matrix which includes all of the variables in the data set.
 
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(GGally)
+ggpairs(Auto)
+
+```
+
+
+
 ## b) 
 Compute the correlation matrix between the variables. You will need to remove the factor covariate `origin`, because this is no longer a continuous variable.
+
+```{r}
+quant <- 1:7
+cor_mat <- cor(Auto[quant])
+auto_quant <- Auto[quant]
+```
 
 ## c) 
 Use the `lm()` function to perform a multiple linear regression with `mpg` (miles per gallon, a measure for fuel consumption) as the response and all other variables (except `name`) as the predictors. Use the `summary()` function to print the results. Comment on the output. In particular:
 
+```{r}
+reg_model = lm(mpg ~., Auto)
+summary(reg_model)
+```
+
 i. Is there a relationship between the predictors and the response?
+
+- Yes, R squared is close to 1
 
 ii. Is there evidence that the weight of a car influences `mpg`? Interpret the regression coefficient $\beta_{\text{weight}}$ (what happens if a car weights 1000kg more, for example?).
 
+- The p-value for weight is very small, so there is strong evidence that the weight of a car influences its mpg metric. Since $\beta_{\text{weight}}$ = `r reg_model$coefficients['weight']` the cars predicted mpg metric will be lower if its weight increases. If a cars weight increases by 1000kg, its mpg metric will _increase_ by `r reg_model$coefficients['weight'] * 1000`.
+
 iii. What does the coefficient for the year variable suggest?
+
+- `r reg_model$coefficients['year']` suggests that newer cars have higher mpg metrics.
+
+
+
 
 ## d)
 Look again at the regression output from question c). Now we want to test whether the `origin` variable is important. How does this work for a factor variable with more than only two levels?
@@ -75,6 +105,13 @@ Look again at the regression output from question c). Now we want to test whethe
 
 ## e) 
 Use the `autoplot()` function from the `ggfortify` package to produce diagnostic plots of the linear regression fit by setting `smooth.colour = NA`, as sometimes the smoothed line can be misleading. Comment on any problems you see with the fit. Do the residual plots suggest any unusually large outliers? Does the leverage plot identify any observations with unusually high leverage?
+
+```{r}
+library(ggfortify)
+autoplot(reg_model, smooth.colour = NA)
+```
+
+
 
 ## f)
 For beginners, it can be difficult to decide whether a certain QQ plot looks "good" or "bad", because we only look at it and do not test anything. A way to get a feeling for how "bad" a QQ plot may look, even when the normality assumption is perfectly ok, we can use simulations: We can simply draw from the normal distribution and plot the QQ plot. Use the following code to repeat this six times:
