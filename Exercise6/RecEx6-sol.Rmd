@@ -1,16 +1,18 @@
 ---
 title: "TMA4268 Statistical Learning"
-subtitle: "Module 6: Solution sketches"
-author: "Thiago G. Martins, Department of Mathematical Sciences, NTNU"
-date: "Spring 2022"
-output: #3rd letter intentation hierarchy
-    # prettydoc::html_pretty:
-    #   theme: architect
-    #   highlight: github
- pdf_document:
- toc: true
- toc_depth: 2
-
+author:
+- Daesoo Lee, Emma Skarstein, Kenneth Aase, Stefanie Muff
+- Department of Mathematical Sciences, NTNU
+date: "Spring 2023"
+output:
+  # html_document:
+  #   toc: no
+  #   toc_float: yes
+  #   toc_depth: 2
+  pdf_document:
+    toc: no
+    toc_depth: '2'
+subtitle: 'Module 6: Solution sketches'
 ---
 
 ```{r setup, include=FALSE}
@@ -205,7 +207,7 @@ y_train <- credit_data_training$Balance
 x_test <- model.matrix(Balance~.,credit_data_testing)[,-1]
 y_test <- credit_data_testing$Balance
 
-ridge_mod <- glmnet(x_train,y_train,alpha=0)
+ridge_mod <- glmnet(x_train,y_train,alpha=0)  # `alpha=0` is the ridge penalty.
 
 set.seed(1)
 cv.out=cv.glmnet(x_train, y_train,alpha=0)
@@ -223,7 +225,7 @@ squared_errors <- data.frame(ridge_square_errors = ridge_square_errors, squared_
 # Recommended exercise 6
 
 ```{r, message=FALSE, warning=FALSE}
-lasso_mod <- glmnet(x_train,y_train,alpha=1)
+lasso_mod <- glmnet(x_train,y_train,alpha=1)  # `alpha=1` is the lasso penalty.
 
 set.seed(1)
 cv.out=cv.glmnet(x_train, y_train,alpha=1)

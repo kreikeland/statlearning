@@ -1,16 +1,18 @@
 ---
 title: "TMA4268 Statistical Learning"
-subtitle: "Module 6: Recommended exercises"
-author: "Thiago G. Martins, Department of Mathematical Sciences, NTNU"
-date: "Spring 2022"
-output: #3rd letter intentation hierarchy
-   prettydoc::html_pretty:
-     theme: architect
-     highlight: github
- # pdf_document:
- # toc: true
- # toc_depth: 2
-
+author:
+- Daesoo Lee, Emma Skarstein, Kenneth Aase, Stefanie Muff
+- Department of Mathematical Sciences, NTNU
+date: "Spring 2023"
+output:
+  pdf_document:
+    toc: no
+    toc_depth: '2'
+  html_document:
+    toc: no
+    toc_float: yes
+    toc_depth: 2
+subtitle: 'Module 6: Recommended exercises'
 ---
 
 ```{r setup, include=FALSE}
