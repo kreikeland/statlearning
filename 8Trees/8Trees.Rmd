@@ -1,8 +1,8 @@
 ---
-subtitle: "TMA4268 Statistical Learning V2022"
+subtitle: "TMA4268 Statistical Learning V2023"
 title: "Module 8: Tree-based Methods"
 author: "Stefanie Muff, Department of Mathematical Sciences, NTNU"
-date: "March 7 and 10, 2022"
+date: "March 6 and 9, 2023"
 fontsize: 10pt
 output:
   beamer_presentation:
@@ -32,14 +32,6 @@ whichformat="latex"
 ```
 
 
---- 
-
-# Acknowledgements
-
-* The course was originally developed by Mette Langaas (original material: https://github.com/mettelang/StatisticalLearningSpring2019). Mette did a fantastic job and I am very thankful that I was allowed to modify and use her material. 
-
-* Some of the figures and slides in this presentation are taken (or are inspired) from @james.etal.
-
 ---
 
 # Introduction 
@@ -48,7 +40,7 @@ whichformat="latex"
 
 \vspace{2mm}
 
-* James et al (2013): An Introduction to Statistical Learning. Chapter 8.  
+* James et al (2021): An Introduction to Statistical Learning. Chapter 8.  
 * All the material presented on these module slides.
 
 <!-- * [Classnotes 04.03.2019](https://www.math.ntnu.no/emner/TMA4268/2019v/notes/M8L1notes.pdf)  -->
@@ -105,7 +97,7 @@ $~$
 Visualisaztion in two dimensions:
 
 \centering
-![ISLR Figure 8.1](../../ISLR/Figures/Chapter8/8.2.png){width=50%}
+![ISLR Figure 8.1](../../ISLR/Figures/Chapter8/82.png){width=50%}
 
 
 
@@ -115,7 +107,7 @@ Visualisaztion in two dimensions:
 
 * The series of splitting rules can be visualized with a _regression tree_.
 
-* The following tree (which corresponds to the split in the previous slide) has three _leafs_ (terminal nodes), and two _internal nodes_.
+* The following tree (which corresponds to the split in the previous slide) has three _leaves_ (terminal nodes), and two _internal nodes_.
 
 
 $~$
@@ -123,7 +115,7 @@ $~$
 \centering
  
 
-![ISLR Figure 8.1](../../ISLR/Figures/Chapter8/8.1.png){width=45%}
+![ISLR Figure 8.1](../../ISLR/Figures/Chapter8/81.png){width=45%}
 
 
 ---
@@ -173,7 +165,7 @@ Two steps:
 
 \vspace{2mm}
 
-**But**: How to divide the predictor space into non-overlapping regions $R_1,R_2,\ldots,R_J$? 
+**But**: _\textcolor{red}{How to divide the predictor space}_ into non-overlapping regions $R_1,R_2,\ldots,R_J$? 
 
 ---
 
@@ -532,7 +524,7 @@ observations into $k$ folds. For each $k = 1,\ldots, K$:
 Let us start with the tree with many leaves, and then prune it with 5-fold CV. We can then plot the CV error as a function of tree size (instead of $\alpha$ -- why?):
 
 \scriptsize
-```{r ozone.cv, echo=TRUE, fig.width=6, fig.height=5,fig.align = "center",out.width='50%'}
+```{r ozonecv, echo=TRUE, fig.width=6, fig.height=5,fig.align = "center",out.width='50%'}
 set.seed(563)
 ozone.tree <- tree(ozone~temp+wind, 
                   data=ozone.train, 
@@ -564,7 +556,7 @@ text(prune.ozone, pretty =0)
 
 <!-- In the [classification tree](classtree2) (grown with deviance) we saw that we got several unnecessary splits. This is also something that can be avoided by pruning.  -->
 
-<!-- In the [classification tree](classtree3) (grown with Gini index) there were 78 leafs - maybe we want a more easily interpretable tree? -->
+<!-- In the [classification tree](classtree3) (grown with Gini index) there were 78 leaves - maybe we want a more easily interpretable tree? -->
 
 <!-- But, there are many possible pruned versions of our full tree. Can we investigate all of these? -->
 
@@ -627,7 +619,11 @@ When making a split in our classification tree, we want to minimize the Gini ind
 
 Why don't we just minimize the misclassification error $$E= 1- \max_k{\hat{p}_{jk}} \ ?$$
 
+\pause
+
 **A**: 
+
+* The misclassification error is not sufficiently sensitive for tree _growing_.
 
 * The Gini index and Entropy are _measure of impurity_. They are more sensitive to changes in the node probabilities. 
 
@@ -663,7 +659,7 @@ legend(0.3,0.2,legend=c("misclassification","cross-entropy","Gini"),fill=c("blac
 
 \normalsize
 
-* Data from patients that enter hospital. The aim is to quickly assess whether a patient as a brain injury or not.
+* Data from patients that enter hospital. The aim is to quickly assess whether a patient has a brain injury or not.
 
 \vspace{2mm}
 
@@ -1006,7 +1002,7 @@ Discuss the _bias-variance tradeoff of a regression tree_ when increasing/decrea
 
 
 \centering
-![Linear boundary ISL Figure 8.7](../../ISLR/Figures/Chapter8/8.7.png){width=50%}
+![Linear boundary ISL Figure 8.7](../../ISLR/Figures/Chapter8/87.png){width=50%}
 
 
 
@@ -1536,7 +1532,7 @@ ISLR Figure 8.10, gene expression data set with 15 classes and 500 predictors:
 \vspace{-3mm}
 
 \centering
-![ISLR Figure 8.10, gene expression data set with 15 classes and 500 predictors](../../ISLR/Figures/Chapter8/8.10.png){width=80%}
+![ISLR Figure 8.10, gene expression data set with 15 classes and 500 predictors](../../ISLR/Figures/Chapter8/810.png){width=80%}
 
 ---
 
@@ -1645,7 +1641,7 @@ Boosting has three tuning parameters which need to be set ($B$, $\lambda$, $d$),
 
 ### Short quizz poll 
 
-www.menti.com, Code  3776 8997
+www.menti.com, Code  1641 4606
 
 ---
 
@@ -1804,7 +1800,7 @@ mean((yhat.bag-boston.test)^2)
 
 $~$
 
-Let's go from bagging to a random forest\footnote{n.b., why are we now speaking of a forest and no longer of a tree?}, using 6 randomly selected predictors for each tree:
+Let's go from bagging to a random forest\footnote{n.b., why are we now speaking of a forest and no longer of a tree?}, using 4 ($\approx p/3$) randomly selected predictors for each tree:
 
 \vspace{2mm}
 
@@ -1812,7 +1808,7 @@ Let's go from bagging to a random forest\footnote{n.b., why are we now speaking 
 \scriptsize
 ```{r}
 set.seed(1)
-rf.boston=randomForest(medv~.,data=Boston,subset=train,mtry=6,importance=TRUE)
+rf.boston=randomForest(medv~.,data=Boston,subset=train,mtry=4,importance=TRUE)
 yhat.rf = predict(rf.boston,newdata=Boston[-train,])
 mean((yhat.rf-boston.test)^2)
 ```
